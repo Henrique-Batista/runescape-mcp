@@ -1,0 +1,20 @@
+{
+  "name": "RuneScape MCP Bridge",
+  "version": "0.1.0",
+  "contactEmailAddress": "pablo.batista.redes.ti@outlook.com",
+  "requiredDependencies": {
+    "prettyui": 6398181
+  },
+  "optionalDependencies": {},
+  "requiredPermissions": [
+    "httpAccess"
+  ],
+  "optionalPermissions": [
+    "chatAccess"
+  ],
+  "urls": {
+    "mcpbridge": "http://127.0.0.1:8765"
+  },
+  "hasRibbonIcon": true,
+  "hasSettingsIcon": true
+}
