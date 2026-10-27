@@ -1,32 +1,36 @@
 # Bridge (Node.js)
 
-Ponte entre o plugin RuneScape "RuneScape MCP Bridge" e um cliente MCP (stdio).
+**English** | [Português](README.pt-BR.md)
 
-## Pré-requisitos
+Bridge between the RuneScape plugin "RuneScape MCP Bridge" and an MCP client
+(stdio).
 
-- Node.js instalado (`node --version`).
-- Plugin `runescape-mcp` ativo no cliente beta, na aba **Bridge** →
-  **Ativar bridge**.
-- Permissão `httpAccess` concedida ao plugin (`ppr runescape-mcp` no console).
+## Requirements
 
-## Rodar
+- Node.js installed (`node --version`).
+- `runescape-mcp` plugin running in the beta client, with **Bridge** tab →
+  **Enable bridge**.
+- `httpAccess` permission granted to the plugin (`ppr runescape-mcp` in the
+  console).
+
+## Run
 
 ```sh
 cd bridge
-npm start          # ou: node server.js
+npm start          # or: node server.js
 ```
 
-O servidor HTTP escuta em `http://127.0.0.1:8765` e o MCP usa stdin/stdout do
-mesmo processo. Para outra porta:
+The HTTP server listens on `http://127.0.0.1:8765` and MCP uses stdin/stdout of
+the same process. For another port:
 
 ```sh
 MCP_BRIDGE_PORT=9000 node server.js
 ```
 
-## Configurar no cliente MCP
+## Configure the MCP client
 
-Exemplo com OpenCode (`~/.config/opencode/opencode.json` ou `opencode.json` do
-projeto):
+OpenCode example (`~/.config/opencode/opencode.json` or the project's
+`opencode.json`):
 
 ```json
 {
@@ -34,49 +38,49 @@ projeto):
   "mcp": {
     "runescape-mcp": {
       "type": "local",
-      "command": ["node", "/caminho/para/runescape-mcp/bridge/server.js"],
+      "command": ["node", "/path/to/runescape-mcp/bridge/server.js"],
       "disabled": false
     }
   }
 }
 ```
 
-O cliente inicia o processo automaticamente.
+The client starts the process automatically.
 
-## Verificar
+## Verify
 
 ```sh
 opencode mcp list
 ```
 
-As ferramentas aparecem como `runescape-mcp_get_state`,
-`runescape-mcp_eval_code`, etc.
+Tools show up as `runescape-mcp_get_state`, `runescape-mcp_eval_code`, and so
+on.
 
-## Fluxo
+## Flow
 
-1. No RuneScape, ative a bridge no plugin.
-2. O plugin envia estado a cada poucos ticks para `http://127.0.0.1:8765`
-   (`POST /state`) e faz polling de comandos (`GET /commands`).
-3. O cliente MCP consulta estado, executa código e gerencia watchers.
+1. In RuneScape, enable the bridge in the plugin.
+2. The plugin sends state every few ticks to `http://127.0.0.1:8765`
+   (`POST /state`) and polls for commands (`GET /commands`).
+3. The MCP client queries state, runs code and manages watchers.
 
-## Endpoints HTTP
+## HTTP endpoints
 
-| Método | Rota | Uso |
+| Method | Route | Purpose |
 | --- | --- | --- |
-| `POST` | `/state` | Plugin envia o último estado. |
-| `GET` | `/state` | Último estado recebido. |
-| `GET` | `/commands` | Plugin busca comandos pendentes. |
-| `POST` | `/result` | Plugin devolve o resultado de um comando. |
-| `POST` | `/logs` | Plugin anexa logs em `bridge.log` (ignorado pelo git). |
-| `GET` | `/health` | Diagnóstico rápido. |
+| `POST` | `/state` | Plugin sends the latest state. |
+| `GET` | `/state` | Last received state. |
+| `GET` | `/commands` | Plugin fetches pending commands. |
+| `POST` | `/result` | Plugin returns the result of a command. |
+| `POST` | `/logs` | Plugin appends logs to `bridge.log` (git-ignored). |
+| `GET` | `/health` | Quick health check. |
 
-## Ferramentas expostas
+## Exposed tools
 
 `get_state`, `get_snapshot`, `eval_code`, `add_watcher`, `remove_watcher`,
 `list_watchers`, `query_var`, `get_logs`.
 
-## Segurança
+## Security
 
-- Escuta apenas em `127.0.0.1`; não exponha a porta.
-- `eval_code` executa Lua arbitrário no cliente — trate como execução remota de
-  código.
+- Listens on `127.0.0.1` only; do not expose the port.
+- `eval_code` runs arbitrary Lua in the client — treat it as remote code
+  execution.
