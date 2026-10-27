@@ -1,78 +1,81 @@
 # RuneScape MCP
 
-Ponte de introspecção entre o cliente RuneScape (RS3) e um agente de IA via
-[MCP](https://modelcontextprotocol.io). O projeto tem duas metades:
+**English** | [Português](README.pt-BR.md)
 
-| Pasta | O que é |
+Introspection bridge between the RuneScape (RS3) client and an AI agent over
+[MCP](https://modelcontextprotocol.io). The project has two halves:
+
+| Folder | What it is |
 | --- | --- |
-| [`plugin/`](plugin/) | Plugin Lua para o cliente beta do RuneScape. Coleta snapshots, gerencia watchers de eventos e faz polling HTTP no bridge. |
-| [`bridge/`](bridge/) | Servidor Node.js. Expõe ferramentas MCP via stdio e recebe o estado enviado pelo plugin em `http://127.0.0.1:8765`. |
+| [`plugin/`](plugin/) | Lua plugin for the RuneScape beta client. Collects snapshots, manages event watchers and polls the bridge over HTTP. |
+| [`bridge/`](bridge/) | Node.js server. Exposes MCP tools over stdio and receives the state sent by the plugin at `http://127.0.0.1:8765`. |
 
 ```
 ┌────────────┐  HTTP polling  ┌────────────┐  MCP stdio  ┌────────┐
-│  RuneScape │ ◄────────────► │   bridge   │ ◄─────────► │  LLM   │
-│  (plugin)  │   /state /cmd   │ (Node.js)  │             │ client │
+│ RuneScape  │ ◄────────────► │   bridge   │ ◄─────────► │  LLM   │
+│  (plugin)  │   /state /cmd   │  (Node.js) │             │ client │
 └────────────┘                └────────────┘             └────────┘
 ```
 
-O plugin não abre porta de escuta (a API do jogo não permite): ele só faz
-requisições para o bridge local. O bridge nunca é exposto fora de
+The plugin never opens a listening socket (the game API does not allow it): it
+only makes requests to the local bridge. The bridge is never exposed outside
 `127.0.0.1`.
 
-## Instalação
+## Installation
 
 ### 1. Plugin
 
-1. Copie a pasta `plugin/` para `dev_plugins/runescape-mcp/` do cliente beta.
-2. Instale a dependência **PrettyUI** (mod.io `6398181`).
-3. No console do cliente: `prf`, `plist`, `pon runescape-mcp`,
+1. Copy the `plugin/` folder to the beta client's
+   `dev_plugins/runescape-mcp/`.
+2. Install the **PrettyUI** dependency (mod.io `6398181`).
+3. In the client console: `prf`, `plist`, `pon runescape-mcp`,
    `ppr runescape-mcp`.
-4. Nas configurações do plugin, conceda `httpAccess` (e `chatAccess` se quiser
-   ler o chat).
+4. In the plugin settings, grant `httpAccess` (and `chatAccess` if you want to
+   read chat).
 
-Detalhes em [`plugin/README.md`](plugin/README.md).
+Details in [`plugin/README.md`](plugin/README.md).
 
 ### 2. Bridge
 
 ```sh
 cd bridge
-npm start        # ou: node server.js
+npm start        # or: node server.js
 ```
 
-Requer Node.js. A porta pode ser trocada com `MCP_BRIDGE_PORT`.
+Requires Node.js. The port can be changed with `MCP_BRIDGE_PORT`.
 
-### 3. Cliente MCP
+### 3. MCP client
 
-Adicione o servidor à configuração do seu cliente (exemplo: OpenCode):
+Add the server to your client configuration (OpenCode example):
 
 ```json
 {
   "mcp": {
     "runescape-mcp": {
       "type": "local",
-      "command": ["node", "/caminho/para/runescape-mcp/bridge/server.js"],
+      "command": ["node", "/path/to/runescape-mcp/bridge/server.js"],
       "disabled": false
     }
   }
 }
 ```
 
-No plugin, aba **Bridge** → **Ativar bridge**. O estado passa a ser enviado a
-cada poucos ticks.
+In the plugin, open the **Bridge** tab → **Enable bridge**. State is then sent
+every few ticks.
 
-## Ferramentas MCP
+## MCP tools
 
 `get_state`, `get_snapshot`, `eval_code`, `add_watcher`, `remove_watcher`,
 `list_watchers`, `query_var`, `get_logs`.
 
-## Segurança
+## Security
 
-- `eval_code` executa Lua arbitrário no cliente. Use apenas código de leitura
-  se quiser preservar a proposta de não modificar o jogo.
-- O bridge escuta apenas em loopback, mas qualquer processo local pode falar
-  com ele — não exponha a porta.
-- Código de watchers roda no ambiente global via `load`.
+- `eval_code` runs arbitrary Lua inside the client. Stick to read-only code if
+  you want to keep the promise of not modifying the game.
+- The bridge listens on loopback only, but any local process can talk to it —
+  do not expose the port.
+- Watcher code runs in the global environment through `load`.
 
-## Licença
+## License
 
-MIT — veja [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).
